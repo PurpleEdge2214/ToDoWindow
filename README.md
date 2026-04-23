@@ -15,7 +15,7 @@
      - a prompt control which receives the default message displayed to the user
      - an image control that could contain your business logo
      - an OK button to close the window with the enter key
-4. Optionally edit the default message to be displayed on the window - gebMessage string variable
+4. Optionally edit the default message to be displayed on the window - gwbMessage string variable, see in the code where this is specified.
 
 #### Using the Template
 1. The template is intended as a replacement for the standard Clarion TODO message, which can't be configure
