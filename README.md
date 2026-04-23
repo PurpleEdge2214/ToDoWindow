@@ -1,10 +1,10 @@
-#gwbTODOWindow
+# gwbTODOWindow
 
-##A template for Clarion for Windows
+## A template for Clarion for Windows
 
-###Instructions
+### Instructions
 
-####The Template
+#### The Template
 1. Copy the gwbToDoWindow.tpl to your Clarion accessories\template\win\ folder
 2. Register the template in Clarion
 3. Optionally edit the template window
@@ -15,8 +15,9 @@
     a prompt control which receives the default message displayed to the user
     an image control that could contain your business logo
     an OK button to close the window with the enter key
-4. Optionally edit the default message to be displayed on the window - gebMessage string variable   
-####Using the Template
+4. Optionally edit the default message to be displayed on the window - gebMessage string variable
+
+#### Using the Template
 1. The template is intended as a replacement for the standard Clarion TODO message, which can't be configure
 2. A TODO procedure is created when a procedure is named in a call, but that procedure has not yet been defined
 3. The idea with this template is that the procedure call remains unchanged, but this template is used to replace the Clarion TODO procedure
