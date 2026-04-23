@@ -26,3 +26,7 @@
 6. IT IS IMPORTANT to know whether the procedure is STARTed or NOT. If NOT started, remove the MDI attribute from the gwbTODO window.
 7. The template will open and you will be able to edit the window for each procedure where you use it, if you wish.
 8. Under the "Actions" tab for the procedure you can override the default message for this procedure, if you wish.
+
+### Demo App
+A demo app for Clarion 10 ABC is supplied
+The source files are also supplied if you can't open a Clarion 10 app.
