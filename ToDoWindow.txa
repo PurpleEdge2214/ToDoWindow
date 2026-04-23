@@ -1,0 +1,953 @@
+[APPLICATION]
+PROCEDURE Main
+DICTIONARY 'C:\ClarionTests\ToDoWindow\SchoolSqlite.DCT'
+[COMMON]
+FROM ABC
+[PROMPTS]
+%ActiveInvisible  DEFAULT (0)
+%AllowUnFilled    DEFAULT (0)
+%RetainRow        DEFAULT (0)
+%ResetOnGainFocus DEFAULT (0)
+%AutoToolBar      DEFAULT (1)
+%AutoRefresh      DEFAULT (1)
+[PROCEDURE]
+NAME Main
+[COMMON]
+DESCRIPTION 'Wizard Application for C:\ClarionTests\ToDoWindow\SchoolSqlite.DCT'
+FROM ABC Frame
+[DATA]
+[FILES]
+[OTHERS]
+Students
+[PROMPTS]
+%ButtonAction DEPEND %Control STRING TIMES 4
+WHEN  ('?BrowseStudents') ('Call a Procedure')
+WHEN  ('?ReportStudentsBySTU:MajorKey') ('Call a Procedure')
+WHEN  ('?ReportStudentsBySTU:KeyLastName') ('Call a Procedure')
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') ('Call a Procedure')
+
+%ButtonRunName DEPEND %Control STRING TIMES 4
+WHEN  ('?BrowseStudents') ('')
+WHEN  ('?ReportStudentsBySTU:MajorKey') ('')
+WHEN  ('?ReportStudentsBySTU:KeyLastName') ('')
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') ('')
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 4
+WHEN  ('?BrowseStudents') ('')
+WHEN  ('?ReportStudentsBySTU:MajorKey') ('')
+WHEN  ('?ReportStudentsBySTU:KeyLastName') ('')
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') ('')
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 4
+WHEN  ('?BrowseStudents') (BrowseStudents)
+WHEN  ('?ReportStudentsBySTU:MajorKey') (ReportStudentsBySTU:MajorKey)
+WHEN  ('?ReportStudentsBySTU:KeyLastName') (ReportStudentsBySTU:KeyLastName)
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') (ReportStudentsBySTU:KeyGradYear)
+
+%ButtonThread DEPEND %Control LONG TIMES 4
+WHEN  ('?BrowseStudents') (1)
+WHEN  ('?ReportStudentsBySTU:MajorKey') (1)
+WHEN  ('?ReportStudentsBySTU:KeyLastName') (1)
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') (1)
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 4
+WHEN  ('?BrowseStudents') (50000)
+WHEN  ('?ReportStudentsBySTU:MajorKey') (50000)
+WHEN  ('?ReportStudentsBySTU:KeyLastName') (50000)
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') (50000)
+
+%ButtonParameters DEPEND %Control STRING TIMES 4
+WHEN  ('?BrowseStudents') ('')
+WHEN  ('?ReportStudentsBySTU:MajorKey') ('')
+WHEN  ('?ReportStudentsBySTU:KeyLastName') ('')
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') ('')
+
+%ButtonRequest DEPEND %Control STRING TIMES 4
+WHEN  ('?BrowseStudents') ('')
+WHEN  ('?ReportStudentsBySTU:MajorKey') ('')
+WHEN  ('?ReportStudentsBySTU:KeyLastName') ('')
+WHEN  ('?ReportStudentsBySTU:KeyGradYear') ('')
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[EMBED]
+EMBED %DataSection
+[DEFINITION]
+[SOURCE]
+SQLOpenWindow        WINDOW('Initializing Database'),AT(,,208,26),FONT('Microsoft Sans Serif',8,,FONT:regular),CENTER,GRAY,DOUBLE
+                       STRING('This process could take several seconds.'),AT(27,12)
+                       IMAGE(Icon:Connect),AT(4,4,23,17)
+                       STRING('Please wait while the program connects to the database.'),AT(27,3)
+                     END
+
+[END]
+[END]
+[EMBED]
+EMBED %WindowManagerMethodCodeSection
+[INSTANCES]
+WHEN 'Init'
+[INSTANCES]
+WHEN '(),BYTE'
+[DEFINITION]
+[SOURCE]
+PROPERTY:BEGIN
+PRIORITY 6400
+PROPERTY:END
+SETCURSOR(Cursor:Wait)
+OPEN(SQLOpenWindow)
+ACCEPT
+  IF EVENT() = Event:OpenWindow
+[SOURCE]
+PROPERTY:BEGIN
+PRIORITY 7800
+PROPERTY:END
+    POST(EVENT:CloseWindow)
+  END
+END
+CLOSE(SQLOpenWindow)
+SETCURSOR()
+[END]
+[END]
+[END]
+[END]
+[WINDOW]
+AppFrame APPLICATION('Application'),AT(,,505,318),STATUS(-1,80,120,45),MAX,RESIZE,ICON('WAFRAME.ICO'),FONT('Microsoft Sans Serif',8,,400,1),CENTER,SYSTEM
+  MENUBAR,USE(?Menubar)
+       MENU('&File'),USE(?FileMenu)
+       ITEM('&Print Setup ...'),USE(?PrintSetup),MSG('Setup printer'),STD(STD:PrintSetup)
+       ITEM,SEPARATOR
+       ITEM('E&xit'),USE(?Exit),MSG('Exit this application'),STD(STD:Close)
+       END
+       MENU('&Edit'),USE(?EditMenu)
+       ITEM('Cu&t'),USE(?Cut),MSG('Cut Selection To Clipboard'),STD(STD:Cut)
+       ITEM('&Copy'),USE(?Copy),MSG('Copy Selection To Clipboard'),STD(STD:Copy)
+       ITEM('&Paste'),USE(?Paste),MSG('Paste From Clipboard'),STD(STD:Paste)
+       END
+       MENU('&Browse'),USE(?BrowseMenu)
+       ITEM('Browse the Students file'),USE(?BrowseStudents),MSG('Browse Students')
+       END
+       MENU('&Reports'),USE(?ReportMenu),MSG('Report data')
+       MENU('Report the Students file'),USE(?ReportStudents)
+       ITEM('Print by by Major'),USE(?ReportStudentsBySTU:MajorKey),MSG('Print ordered by by Major')
+       ITEM('Print by by Last Name'),USE(?ReportStudentsBySTU:KeyLastName),MSG('Print ordered by by Last Name')
+       ITEM('Print by by Grad Year'),USE(?ReportStudentsBySTU:KeyGradYear),MSG('Print ordered by by Grad Year')
+       END
+       END
+       MENU('&Window'),USE(?WindowMenu),STD(STD:WindowList)
+       ITEM('T&ile'),USE(?Tile),MSG('Arrange multiple opened windows'),STD(STD:TileWindow)
+       ITEM('&Cascade'),USE(?Cascade),MSG('Arrange multiple opened windows'),STD(STD:CascadeWindow)
+       ITEM('&Arrange Icons'),USE(?Arrange),MSG('Arrange the icons for minimized windows'),STD(STD:ArrangeIcons)
+       END
+       MENU('&Help'),USE(?HelpMenu)
+       ITEM('&Contents'),USE(?Helpindex),MSG('View the contents of the help file'),STD(STD:HelpIndex)
+       ITEM('&Search for Help On...'),USE(?HelpSearch),MSG('Search for help on a subject'),STD(STD:HelpSearch)
+       ITEM('&How to Use Help'),USE(?HelpOnHelp),MSG('Provides general instructions on using help'),STD(STD:HelpOnHelp)
+       END
+  END
+ END
+[PROCEDURE]
+NAME BrowseStudents
+CATEGORY 'Browse'
+[COMMON]
+DESCRIPTION 'Browse the Students file'
+FROM ABC Window
+[DATA]
+CurrentTab                STRING(80)
+[FILES]
+[PRIMARY]
+Students
+[INSTANCE]
+1
+[KEY]
+STU:MajorKey
+[OTHERS]
+Majors
+[PROMPTS]
+%ButtonAction DEPEND %Control STRING TIMES 1
+WHEN  ('?SelectMajors') ('Call a Procedure')
+
+%ButtonRunName DEPEND %Control STRING TIMES 1
+WHEN  ('?SelectMajors') ('')
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 1
+WHEN  ('?SelectMajors') ('')
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 1
+WHEN  ('?SelectMajors') (SelectMajors)
+
+%ButtonThread DEPEND %Control LONG TIMES 1
+WHEN  ('?SelectMajors') (0)
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 1
+WHEN  ('?SelectMajors') (025000)
+
+%ButtonParameters DEPEND %Control STRING TIMES 1
+WHEN  ('?SelectMajors') ('')
+
+%ButtonRequest DEPEND %Control STRING TIMES 1
+WHEN  ('?SelectMajors') ('Select')
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC BrowseBox
+[INSTANCE]
+INSTANCE 1
+PROCPROP
+[PROMPTS]
+%AcceptToolbarControl LONG (0)
+%EnableQuickScan LONG  (0)
+
+%LocatorType DEFAULT  ('Step')
+%OverrideDefaultLocator DEFAULT ('')
+%OverrideLocator DEFAULT ('')
+
+%RecordFilter @S255  ('')
+
+%RangeField COMPONENT  (STU:Major)
+
+%RangeLimitType DEFAULT  ('File Relationship')
+%RangeLimit FIELD  ()
+%RangeLow FIELD  ()
+%RangeHigh FIELD  ()
+%RangeFile FILE  (Majors)
+%ScrollBehavior DEFAULT  ('Fixed Thumb')
+%SortOrder MULTI LONG  (1,2)
+%SortCondition DEPEND %SortOrder @S255 TIMES 2
+WHEN  (1) ('CHOICE(?CurrentTab) = 2')
+WHEN  (2) ('CHOICE(?CurrentTab) = 3')
+%SortKey DEPEND %SortOrder KEY TIMES 2
+WHEN  (1) (STU:KeyLastName)
+WHEN  (2) (STU:KeyGradYear)
+%SortLocatorType DEPEND %SortOrder DEFAULT TIMES 2
+WHEN  (1) ('Step')
+WHEN  (2) ('Step')
+%SortOverrideDefaultLocator DEPEND %SortOrder DEFAULT TIMES 2
+WHEN  (1) ('')
+WHEN  (2) ('')
+%SortOverrideLocator DEPEND %SortOrder DEFAULT TIMES 2
+WHEN  (1) ('')
+WHEN  (2) ('')
+%SortRecordFilter DEPEND %SortOrder @S255 TIMES 2
+WHEN  (1) ('')
+WHEN  (2) ('')
+%SortRangeField DEPEND %SortOrder COMPONENT TIMES 0 !HOLA 0
+%SortRangeLimit DEPEND %SortOrder FIELD TIMES 2
+WHEN  (1) ()
+WHEN  (2) ()
+%SortRangeLow DEPEND %SortOrder FIELD TIMES 2
+WHEN  (1) ()
+WHEN  (2) ()
+%SortRangeHigh DEPEND %SortOrder FIELD TIMES 2
+WHEN  (1) ()
+WHEN  (2) ()
+%SortRangeFile DEPEND %SortOrder FILE TIMES 2
+WHEN  (1) ()
+WHEN  (2) ()
+%SortRangeLimitType DEPEND %SortOrder DEFAULT TIMES 2
+WHEN  (1) ('')
+WHEN  (2) ('')
+%SortScrollBehavior DEPEND %SortOrder DEFAULT TIMES 2
+WHEN  (1) ('Fixed Thumb')
+WHEN  (2) ('Fixed Thumb')
+%SortScrollKeyDistribution DEPEND %SortOrder STRING TIMES 2
+WHEN  (1) ('Runtime')
+WHEN  (2) ('Runtime')
+%SortCustomKeyDistribution DEPEND %SortOrder MULTI LONG TIMES 0
+%SortKeyDistributionValue DEPEND %SortCustomKeyDistribution @S10 TIMES 2
+WHEN  (1)TIMES 0
+WHEN  (2)TIMES 0
+%SortScrollAlpha DEPEND %SortOrder LONG TIMES 2
+WHEN  (1) (1)
+WHEN  (2) (1)
+%SortScrollNumeric DEPEND %SortOrder LONG TIMES 2
+WHEN  (1) (0)
+WHEN  (2) (0)
+%SortScrollAlt DEPEND %SortOrder LONG TIMES 2
+WHEN  (1) (0)
+WHEN  (2) (0)
+[ADDITION]
+NAME ABC BrowseViewButton
+[INSTANCE]
+INSTANCE 2
+PARENT 1
+[ADDITION]
+NAME ABC BrowseUpdateButtons
+[INSTANCE]
+INSTANCE 3
+PARENT 1
+PROCPROP
+[PROMPTS]
+%UpdateProcedure PROCEDURE  (UpdateStudents)
+%EditViaPopup LONG  (1)
+[ADDITION]
+NAME ABC CloseButton
+[INSTANCE]
+INSTANCE 4
+[ADDITION]
+NAME ABC HelpButton
+[INSTANCE]
+INSTANCE 5
+[ADDITION]
+NAME ABC WindowResize
+[INSTANCE]
+INSTANCE 6
+[PROMPTS]
+%UseAppStrategy    DEFAULT (1)
+%AppStrategy       DEFAULT ('Surface')
+%RestrictMinSize   DEFAULT (1)
+%WindowMinWidth    DEFAULT (0)
+%WindowMaxWidth    DEFAULT (0)
+[WINDOW]
+QuickWindow WINDOW('Browse the Students file'),AT(,,358,198),IMM,RESIZE,GRAY,MDI,HLP('BrowseStudents'),FONT('Microsoft Sans Serif',8,,400,1),CENTER,SYSTEM
+    LIST,AT(8,30,342,124),USE(?Browse:1),MSG('Browsing the Students file'),IMM,HVSCROLL,|
+      FORMAT('52L(2)|M~Number~L(2)@P###-##-####P@80L(2)|M~First Name~L(2)@S20@80L(2)|M~Last Name~L(2)@S20@80L(2)|M~Address~L(2)@S20@80L(2)|M~Address 2~L(2)@s20@80L(2)|M~City~L(2)@S20@24L(2)|M~State~L(2)@S2@24R(2)|M~Zip~C(0)@n05@52L(2)|M~Telephone~L(2)@s12@'),|
+      FROM(Queue:Browse:1),#SEQ(1),#ORIG(?List),#FIELDS(STU:Number,STU:FirstName,STU:LastName,STU:Address,STU:Address2,STU:City,STU:State,STU:Zip,STU:Telephone)
+    BUTTON('&View'),AT(142,158,49,14),USE(?View:2),ICON('WAVIEW.ICO'),FLAT,MSG('View Record'),TIP('View Record'),LEFT,#SEQ(2),#ORIG(?View)
+    BUTTON('&Insert'),AT(195,158,49,14),USE(?Insert:3),ICON('WAINSERT.ICO'),FLAT,MSG('Insert a Record'),TIP('Insert a Record'),LEFT,#SEQ(3),#ORIG(?Insert),#LINK(?Change:3)
+    BUTTON('&Change'),AT(248,158,49,14),USE(?Change:3),ICON('WACHANGE.ICO'),FLAT,MSG('Change the Record'),TIP('Change the Record'),LEFT,DEFAULT,#SEQ(3),#ORIG(?Change),#LINK(?Delete:3)
+    BUTTON('&Delete'),AT(301,158,49,14),USE(?Delete:3),ICON('WADELETE.ICO'),FLAT,MSG('Delete the Record'),TIP('Delete the Record'),LEFT,#SEQ(3),#ORIG(?Delete),#LINK(?Insert:3)
+  SHEET,AT(4,4,350,172),USE(?CurrentTab),#ORIG(CurrentTab)
+    TAB('&1) by Major'),USE(?Tab:2)
+       BUTTON('Select Majors'),ICON('WAPARENT.ICO'),FLAT,MSG('Select Parent Field'),TIP('Select Parent Field'),LEFT,USE(?SelectMajors),AT(8,158,118,14)
+    END
+    TAB('&2) by Last Name'),USE(?Tab:3)
+    END
+    TAB('&3) by Grad Year'),USE(?Tab:4)
+    END
+  END
+  BUTTON('&Close'),AT(252,180,49,14),USE(?Close),ICON('WACLOSE.ICO'),FLAT,MSG('Close Window'),TIP('Close Window'),LEFT,#SEQ(4),#ORIG(?Close)
+  BUTTON('&Help'),AT(305,180,49,14),USE(?Help),ICON('WAHELP.ICO'),FLAT,MSG('See Help Window'),TIP('See Help Window'),LEFT,STD(STD:Help),#SEQ(5),#ORIG(?Help)
+ END
+[PROCEDURE]
+NAME ReportStudentsBySTU:MajorKey
+CATEGORY 'Report'
+[COMMON]
+DESCRIPTION 'Print the Students File by STU:MajorKey'
+FROM ABC Report
+[DATA]
+[FILES]
+[PRIMARY]
+Students
+[INSTANCE]
+0
+[KEY]
+STU:MajorKey
+[PROMPTS]
+%EnablePrintPreview LONG  (1)
+%MaximizePreviewWindow LONG  (1)
+%InitialZoom DEFAULT  ('No Zoom')
+%ButtonAction DEPEND %Control STRING TIMES 0
+
+%ButtonRunName DEPEND %Control STRING TIMES 0
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 0
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ButtonThread DEPEND %Control LONG TIMES 0
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 0
+
+%ButtonParameters DEPEND %Control STRING TIMES 0
+
+%ButtonRequest DEPEND %Control STRING TIMES 0
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC ReportDateStamp
+[INSTANCE]
+INSTANCE 1
+[PROMPTS]
+%TimeStampFormat DEFAULT  ('@D17')
+%UseSystemTime DEFAULT  (1)
+[ADDITION]
+NAME ABC ReportTimeStamp
+[INSTANCE]
+INSTANCE 2
+[PROMPTS]
+%DateStampFormat DEFAULT  ('@T7')
+%UseSystemDate DEFAULT  (1)
+[WINDOW]
+ProgressWindow WINDOW('Report Students'),|
+       AT(,,142,59),TIMER(1),GRAY,DOUBLE,FONT('Microsoft Sans Serif',8,,400,1),CENTER
+       PROGRESS,USE(Progress:Thermometer),AT(15,15,111,12),RANGE(0,100),#ORIG(Progress:Thermometer)
+       STRING(''),AT(0,3,141,10),USE(?Progress:UserString),CENTER,#ORIG(?Progress:UserString)
+       STRING(''),AT(0,30,141,10),USE(?Progress:PctText),CENTER,#ORIG(?Progress:PctText)
+       BUTTON('Cancel'),AT(46,42,49,15),USE(?Progress:Cancel),ICON('WACANCEL.ICO'),FLAT,MSG('Cancel Report'),TIP('Cancel Report'),LEFT,#ORIG(?Progress:Cancel)
+     END
+[REPORT]
+Report REPORT('Students Report'),AT(250,1190,8000,9310),PRE(RPT),PAPER(PAPER:LETTER),FONT('Microsoft Sans Serif',8,,400,1),THOUS
+       HEADER,AT(250,250,8000,940),USE(?Header),FONT('Microsoft Sans Serif',8,,400,1)
+         STRING('Report Students file'),AT(0,20,8000,220),USE(?ReportTitle),CENTER,FONT('Microsoft Sans Serif',8,,400,1)
+         BOX,AT(0,350,8000,610),COLOR(00H),USE(?HeaderBox)
+         LINE,AT(2000,350,0,610),COLOR(00H),USE(?HeaderLine:1)
+         LINE,AT(4000,350,0,610),COLOR(00H),USE(?HeaderLine:2)
+         LINE,AT(6000,350,0,610),COLOR(00H),USE(?HeaderLine:3)
+         STRING('Number'),AT(50,390,1900,170),TRN,USE(?HeaderTitle:1)
+         STRING('First Name'),AT(2050,390,1900,170),TRN,USE(?HeaderTitle:2)
+         STRING('Last Name'),AT(4050,390,1900,170),TRN,USE(?HeaderTitle:3)
+         STRING('Address'),AT(6050,390,1900,170),TRN,USE(?HeaderTitle:4)
+         STRING('Address 2'),AT(50,570,1900,170),TRN,USE(?HeaderTitle:5)
+         STRING('City'),AT(2050,570,1900,170),TRN,USE(?HeaderTitle:6)
+         STRING('State'),AT(4050,570,1900,170),TRN,USE(?HeaderTitle:7)
+         STRING('Zip'),AT(6050,570,1900,170),TRN,USE(?HeaderTitle:8)
+         STRING('Telephone'),AT(50,750,1900,170),TRN,USE(?HeaderTitle:9)
+         STRING('Grad Year'),AT(2050,750,1900,170),TRN,USE(?HeaderTitle:10)
+       END
+Detail DETAIL,AT(0,0,8000,750),USE(?Detail)
+         LINE,AT(0,0,0,750),COLOR(00H),USE(?DetailLine:0)
+         LINE,AT(2000,0,0,750),COLOR(00H),USE(?DetailLine:1)
+         LINE,AT(4000,0,0,750),COLOR(00H),USE(?DetailLine:2)
+         LINE,AT(6000,0,0,750),COLOR(00H),USE(?DetailLine:3)
+         LINE,AT(8000,0,0,750),COLOR(00H),USE(?DetailLine:4)
+         STRING(@P###-##-####P),USE(STU:Number),RIGHT(1),AT(50,50,1900,170)
+         STRING(@S20),USE(STU:FirstName),AT(2050,50,1900,170)
+         STRING(@S20),USE(STU:LastName),AT(4050,50,1900,170)
+         STRING(@S20),USE(STU:Address),AT(6050,50,1900,170)
+         STRING(@s20),USE(STU:Address2),AT(50,230,1900,170)
+         STRING(@S20),USE(STU:City),AT(2050,230,1900,170)
+         STRING(@S2),USE(STU:State),AT(4050,230,1900,170)
+         STRING(@n05),USE(STU:Zip),AT(6050,230,1900,170)
+         STRING(@s12),USE(STU:Telephone),AT(50,410,1900,170)
+         STRING(@n4),USE(STU:GradYear),AT(2050,410,1900,170)
+         LINE,AT(0,750,8000,0),COLOR(00H),USE(?DetailEndLine)
+       END
+       FOOTER,AT(250,10500,8000,250),USE(?Footer)
+         STRING('Date:'),AT(115,52,344,135),USE(?ReportDatePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDatePrompt)
+         STRING('<<-- Date Stamp -->'),AT(490,52,927,135),USE(?ReportDateStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDateStamp)
+         STRING('Time:'),AT(1625,52,271,135),USE(?ReportTimePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimePrompt)
+         STRING('<<-- Time Stamp -->'),AT(1927,52,927,135),USE(?ReportTimeStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimeStamp)
+         STRING(@pPage <<#p),AT(6950,52,700,135),FONT('Arial',8,,FONT:regular),PAGENO,USE(?PageCount:2)
+       END
+       FORM,AT(250,250,8000,10500),USE(?Form),FONT('Microsoft Sans Serif',8,,400,1)
+         IMAGE(''),AT(0,0,8000,10500),USE(?FormImage),TILED
+       END
+     END
+[PROCEDURE]
+NAME ReportStudentsBySTU:KeyLastName
+CATEGORY 'Report'
+[COMMON]
+DESCRIPTION 'Print the Students File by STU:KeyLastName'
+FROM ABC Report
+[DATA]
+[FILES]
+[PRIMARY]
+Students
+[INSTANCE]
+0
+[KEY]
+STU:KeyLastName
+[PROMPTS]
+%EnablePrintPreview LONG  (1)
+%MaximizePreviewWindow LONG  (1)
+%InitialZoom DEFAULT  ('No Zoom')
+%ButtonAction DEPEND %Control STRING TIMES 0
+
+%ButtonRunName DEPEND %Control STRING TIMES 0
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 0
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ButtonThread DEPEND %Control LONG TIMES 0
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 0
+
+%ButtonParameters DEPEND %Control STRING TIMES 0
+
+%ButtonRequest DEPEND %Control STRING TIMES 0
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC ReportDateStamp
+[INSTANCE]
+INSTANCE 1
+[PROMPTS]
+%TimeStampFormat DEFAULT  ('@D17')
+%UseSystemTime DEFAULT  (1)
+[ADDITION]
+NAME ABC ReportTimeStamp
+[INSTANCE]
+INSTANCE 2
+[PROMPTS]
+%DateStampFormat DEFAULT  ('@T7')
+%UseSystemDate DEFAULT  (1)
+[WINDOW]
+ProgressWindow WINDOW('Report Students'),|
+       AT(,,142,59),TIMER(1),GRAY,DOUBLE,FONT('Microsoft Sans Serif',8,,400,1),CENTER
+       PROGRESS,USE(Progress:Thermometer),AT(15,15,111,12),RANGE(0,100),#ORIG(Progress:Thermometer)
+       STRING(''),AT(0,3,141,10),USE(?Progress:UserString),CENTER,#ORIG(?Progress:UserString)
+       STRING(''),AT(0,30,141,10),USE(?Progress:PctText),CENTER,#ORIG(?Progress:PctText)
+       BUTTON('Cancel'),AT(46,42,49,15),USE(?Progress:Cancel),ICON('WACANCEL.ICO'),FLAT,MSG('Cancel Report'),TIP('Cancel Report'),LEFT,#ORIG(?Progress:Cancel)
+     END
+[REPORT]
+Report REPORT('Students Report'),AT(250,1190,8000,9310),PRE(RPT),PAPER(PAPER:LETTER),FONT('Microsoft Sans Serif',8,,400,1),THOUS
+       HEADER,AT(250,250,8000,940),USE(?Header),FONT('Microsoft Sans Serif',8,,400,1)
+         STRING('Report Students file'),AT(0,20,8000,220),USE(?ReportTitle),CENTER,FONT('Microsoft Sans Serif',8,,400,1)
+         BOX,AT(0,350,8000,610),COLOR(00H),USE(?HeaderBox)
+         LINE,AT(2000,350,0,610),COLOR(00H),USE(?HeaderLine:1)
+         LINE,AT(4000,350,0,610),COLOR(00H),USE(?HeaderLine:2)
+         LINE,AT(6000,350,0,610),COLOR(00H),USE(?HeaderLine:3)
+         STRING('Number'),AT(50,390,1900,170),TRN,USE(?HeaderTitle:1)
+         STRING('First Name'),AT(2050,390,1900,170),TRN,USE(?HeaderTitle:2)
+         STRING('Last Name'),AT(4050,390,1900,170),TRN,USE(?HeaderTitle:3)
+         STRING('Address'),AT(6050,390,1900,170),TRN,USE(?HeaderTitle:4)
+         STRING('Address 2'),AT(50,570,1900,170),TRN,USE(?HeaderTitle:5)
+         STRING('City'),AT(2050,570,1900,170),TRN,USE(?HeaderTitle:6)
+         STRING('State'),AT(4050,570,1900,170),TRN,USE(?HeaderTitle:7)
+         STRING('Zip'),AT(6050,570,1900,170),TRN,USE(?HeaderTitle:8)
+         STRING('Telephone'),AT(50,750,1900,170),TRN,USE(?HeaderTitle:9)
+         STRING('Grad Year'),AT(2050,750,1900,170),TRN,USE(?HeaderTitle:10)
+       END
+Detail DETAIL,AT(0,0,8000,750),USE(?Detail)
+         LINE,AT(0,0,0,750),COLOR(00H),USE(?DetailLine:0)
+         LINE,AT(2000,0,0,750),COLOR(00H),USE(?DetailLine:1)
+         LINE,AT(4000,0,0,750),COLOR(00H),USE(?DetailLine:2)
+         LINE,AT(6000,0,0,750),COLOR(00H),USE(?DetailLine:3)
+         LINE,AT(8000,0,0,750),COLOR(00H),USE(?DetailLine:4)
+         STRING(@P###-##-####P),USE(STU:Number),RIGHT(1),AT(50,50,1900,170)
+         STRING(@S20),USE(STU:FirstName),AT(2050,50,1900,170)
+         STRING(@S20),USE(STU:LastName),AT(4050,50,1900,170)
+         STRING(@S20),USE(STU:Address),AT(6050,50,1900,170)
+         STRING(@s20),USE(STU:Address2),AT(50,230,1900,170)
+         STRING(@S20),USE(STU:City),AT(2050,230,1900,170)
+         STRING(@S2),USE(STU:State),AT(4050,230,1900,170)
+         STRING(@n05),USE(STU:Zip),AT(6050,230,1900,170)
+         STRING(@s12),USE(STU:Telephone),AT(50,410,1900,170)
+         STRING(@n4),USE(STU:GradYear),AT(2050,410,1900,170)
+         LINE,AT(0,750,8000,0),COLOR(00H),USE(?DetailEndLine)
+       END
+       FOOTER,AT(250,10500,8000,250),USE(?Footer)
+         STRING('Date:'),AT(115,52,344,135),USE(?ReportDatePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDatePrompt)
+         STRING('<<-- Date Stamp -->'),AT(490,52,927,135),USE(?ReportDateStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDateStamp)
+         STRING('Time:'),AT(1625,52,271,135),USE(?ReportTimePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimePrompt)
+         STRING('<<-- Time Stamp -->'),AT(1927,52,927,135),USE(?ReportTimeStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimeStamp)
+         STRING(@pPage <<#p),AT(6950,52,700,135),FONT('Arial',8,,FONT:regular),PAGENO,USE(?PageCount:2)
+       END
+       FORM,AT(250,250,8000,10500),USE(?Form),FONT('Microsoft Sans Serif',8,,400,1)
+         IMAGE(''),AT(0,0,8000,10500),USE(?FormImage),TILED
+       END
+     END
+[PROCEDURE]
+NAME ReportStudentsBySTU:KeyGradYear
+CATEGORY 'Report'
+[COMMON]
+DESCRIPTION 'Print the Students File by STU:KeyGradYear'
+FROM ABC Report
+[DATA]
+[FILES]
+[PRIMARY]
+Students
+[INSTANCE]
+0
+[KEY]
+STU:KeyGradYear
+[PROMPTS]
+%EnablePrintPreview LONG  (1)
+%MaximizePreviewWindow LONG  (1)
+%InitialZoom DEFAULT  ('No Zoom')
+%ButtonAction DEPEND %Control STRING TIMES 0
+
+%ButtonRunName DEPEND %Control STRING TIMES 0
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 0
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ButtonThread DEPEND %Control LONG TIMES 0
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 0
+
+%ButtonParameters DEPEND %Control STRING TIMES 0
+
+%ButtonRequest DEPEND %Control STRING TIMES 0
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC ReportDateStamp
+[INSTANCE]
+INSTANCE 1
+[PROMPTS]
+%TimeStampFormat DEFAULT  ('@D17')
+%UseSystemTime DEFAULT  (1)
+[ADDITION]
+NAME ABC ReportTimeStamp
+[INSTANCE]
+INSTANCE 2
+[PROMPTS]
+%DateStampFormat DEFAULT  ('@T7')
+%UseSystemDate DEFAULT  (1)
+[WINDOW]
+ProgressWindow WINDOW('Report Students'),|
+       AT(,,142,59),TIMER(1),GRAY,DOUBLE,FONT('Microsoft Sans Serif',8,,400,1),CENTER
+       PROGRESS,USE(Progress:Thermometer),AT(15,15,111,12),RANGE(0,100),#ORIG(Progress:Thermometer)
+       STRING(''),AT(0,3,141,10),USE(?Progress:UserString),CENTER,#ORIG(?Progress:UserString)
+       STRING(''),AT(0,30,141,10),USE(?Progress:PctText),CENTER,#ORIG(?Progress:PctText)
+       BUTTON('Cancel'),AT(46,42,49,15),USE(?Progress:Cancel),ICON('WACANCEL.ICO'),FLAT,MSG('Cancel Report'),TIP('Cancel Report'),LEFT,#ORIG(?Progress:Cancel)
+     END
+[REPORT]
+Report REPORT('Students Report'),AT(250,1190,8000,9310),PRE(RPT),PAPER(PAPER:LETTER),FONT('Microsoft Sans Serif',8,,400,1),THOUS
+       HEADER,AT(250,250,8000,940),USE(?Header),FONT('Microsoft Sans Serif',8,,400,1)
+         STRING('Report Students file'),AT(0,20,8000,220),USE(?ReportTitle),CENTER,FONT('Microsoft Sans Serif',8,,400,1)
+         BOX,AT(0,350,8000,610),COLOR(00H),USE(?HeaderBox)
+         LINE,AT(2000,350,0,610),COLOR(00H),USE(?HeaderLine:1)
+         LINE,AT(4000,350,0,610),COLOR(00H),USE(?HeaderLine:2)
+         LINE,AT(6000,350,0,610),COLOR(00H),USE(?HeaderLine:3)
+         STRING('Number'),AT(50,390,1900,170),TRN,USE(?HeaderTitle:1)
+         STRING('First Name'),AT(2050,390,1900,170),TRN,USE(?HeaderTitle:2)
+         STRING('Last Name'),AT(4050,390,1900,170),TRN,USE(?HeaderTitle:3)
+         STRING('Address'),AT(6050,390,1900,170),TRN,USE(?HeaderTitle:4)
+         STRING('Address 2'),AT(50,570,1900,170),TRN,USE(?HeaderTitle:5)
+         STRING('City'),AT(2050,570,1900,170),TRN,USE(?HeaderTitle:6)
+         STRING('State'),AT(4050,570,1900,170),TRN,USE(?HeaderTitle:7)
+         STRING('Zip'),AT(6050,570,1900,170),TRN,USE(?HeaderTitle:8)
+         STRING('Telephone'),AT(50,750,1900,170),TRN,USE(?HeaderTitle:9)
+         STRING('Grad Year'),AT(2050,750,1900,170),TRN,USE(?HeaderTitle:10)
+       END
+Detail DETAIL,AT(0,0,8000,750),USE(?Detail)
+         LINE,AT(0,0,0,750),COLOR(00H),USE(?DetailLine:0)
+         LINE,AT(2000,0,0,750),COLOR(00H),USE(?DetailLine:1)
+         LINE,AT(4000,0,0,750),COLOR(00H),USE(?DetailLine:2)
+         LINE,AT(6000,0,0,750),COLOR(00H),USE(?DetailLine:3)
+         LINE,AT(8000,0,0,750),COLOR(00H),USE(?DetailLine:4)
+         STRING(@P###-##-####P),USE(STU:Number),RIGHT(1),AT(50,50,1900,170)
+         STRING(@S20),USE(STU:FirstName),AT(2050,50,1900,170)
+         STRING(@S20),USE(STU:LastName),AT(4050,50,1900,170)
+         STRING(@S20),USE(STU:Address),AT(6050,50,1900,170)
+         STRING(@s20),USE(STU:Address2),AT(50,230,1900,170)
+         STRING(@S20),USE(STU:City),AT(2050,230,1900,170)
+         STRING(@S2),USE(STU:State),AT(4050,230,1900,170)
+         STRING(@n05),USE(STU:Zip),AT(6050,230,1900,170)
+         STRING(@s12),USE(STU:Telephone),AT(50,410,1900,170)
+         STRING(@n4),USE(STU:GradYear),AT(2050,410,1900,170)
+         LINE,AT(0,750,8000,0),COLOR(00H),USE(?DetailEndLine)
+       END
+       FOOTER,AT(250,10500,8000,250),USE(?Footer)
+         STRING('Date:'),AT(115,52,344,135),USE(?ReportDatePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDatePrompt)
+         STRING('<<-- Date Stamp -->'),AT(490,52,927,135),USE(?ReportDateStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(1),#ORIG(?ReportDateStamp)
+         STRING('Time:'),AT(1625,52,271,135),USE(?ReportTimePrompt:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimePrompt)
+         STRING('<<-- Time Stamp -->'),AT(1927,52,927,135),USE(?ReportTimeStamp:2),TRN,FONT('Arial',8,,FONT:regular),#SEQ(2),#ORIG(?ReportTimeStamp)
+         STRING(@pPage <<#p),AT(6950,52,700,135),FONT('Arial',8,,FONT:regular),PAGENO,USE(?PageCount:2)
+       END
+       FORM,AT(250,250,8000,10500),USE(?Form),FONT('Microsoft Sans Serif',8,,400,1)
+         IMAGE(''),AT(0,0,8000,10500),USE(?FormImage),TILED
+       END
+     END
+[PROCEDURE]
+NAME SelectMajors
+CATEGORY 'Browse'
+[COMMON]
+DESCRIPTION 'Select a Majors Record'
+FROM ABC Window
+[DATA]
+CurrentTab                STRING(80)
+[FILES]
+[PRIMARY]
+Majors
+[INSTANCE]
+1
+[KEY]
+MAJ:KeyDescription
+[PROMPTS]
+%ButtonAction DEPEND %Control STRING TIMES 0
+
+%ButtonRunName DEPEND %Control STRING TIMES 0
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 0
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ButtonThread DEPEND %Control LONG TIMES 0
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 0
+
+%ButtonParameters DEPEND %Control STRING TIMES 0
+
+%ButtonRequest DEPEND %Control STRING TIMES 0
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC BrowseBox
+[INSTANCE]
+INSTANCE 1
+PROCPROP
+[PROMPTS]
+%AcceptToolbarControl LONG (0)
+%EnableQuickScan LONG  (0)
+
+%LocatorType DEFAULT  ('Step')
+%OverrideDefaultLocator DEFAULT ('')
+%OverrideLocator DEFAULT ('')
+
+%RecordFilter @S255  ('')
+
+%RangeField COMPONENT  ()
+
+%RangeLimitType DEFAULT  ('')
+%RangeLimit FIELD  ()
+%RangeLow FIELD  ()
+%RangeHigh FIELD  ()
+%RangeFile FILE  ()
+%ScrollBehavior DEFAULT  ('Fixed Thumb')
+%SortOrder MULTI LONG  ()
+%SortCondition DEPEND %SortOrder @S255 TIMES 0
+%SortKey DEPEND %SortOrder KEY TIMES 0
+%SortLocatorType DEPEND %SortOrder DEFAULT TIMES 0
+%SortOverrideDefaultLocator DEPEND %SortOrder DEFAULT TIMES 0
+%SortOverrideLocator DEPEND %SortOrder DEFAULT TIMES 0
+%SortRecordFilter DEPEND %SortOrder @S255 TIMES 0
+%SortRangeField DEPEND %SortOrder COMPONENT TIMES 0 !HOLA 0
+%SortRangeLimit DEPEND %SortOrder FIELD TIMES 0
+%SortRangeLow DEPEND %SortOrder FIELD TIMES 0
+%SortRangeHigh DEPEND %SortOrder FIELD TIMES 0
+%SortRangeFile DEPEND %SortOrder FILE TIMES 0
+%SortRangeLimitType DEPEND %SortOrder DEFAULT TIMES 0
+%SortScrollBehavior DEPEND %SortOrder DEFAULT TIMES 0
+%SortScrollKeyDistribution DEPEND %SortOrder STRING TIMES 0
+%SortCustomKeyDistribution DEPEND %SortOrder MULTI LONG TIMES 0
+%SortKeyDistributionValue DEPEND %SortCustomKeyDistribution @S10 TIMES 0
+%SortScrollAlpha DEPEND %SortOrder LONG TIMES 0
+%SortScrollNumeric DEPEND %SortOrder LONG TIMES 0
+%SortScrollAlt DEPEND %SortOrder LONG TIMES 0
+[ADDITION]
+NAME ABC BrowseSelectButton
+[INSTANCE]
+INSTANCE 2
+PARENT 1
+[PROMPTS]
+%HideIfDisabled LONG  (1)
+[ADDITION]
+NAME ABC CloseButton
+[INSTANCE]
+INSTANCE 3
+[ADDITION]
+NAME ABC HelpButton
+[INSTANCE]
+INSTANCE 4
+[ADDITION]
+NAME ABC WindowResize
+[INSTANCE]
+INSTANCE 5
+[PROMPTS]
+%UseAppStrategy    DEFAULT (1)
+%AppStrategy       DEFAULT ('Surface')
+%RestrictMinSize   DEFAULT (1)
+%WindowMinWidth    DEFAULT (0)
+%WindowMaxWidth    DEFAULT (0)
+[WINDOW]
+QuickWindow WINDOW('Select a Majors Record'),AT(,,158,198),IMM,RESIZE,GRAY,MDI,HLP('SelectMajors'),FONT('Microsoft Sans Serif',8,,400,1),CENTER,SYSTEM
+    LIST,AT(8,30,142,124),USE(?Browse:1),MSG('Browsing the Majors file'),IMM,HVSCROLL,|
+      FORMAT('28R(2)|M~Number~C(0)@n4@80L(2)|M~Description~L(2)@S20@'),|
+      FROM(Queue:Browse:1),#SEQ(1),#ORIG(?List),#FIELDS(MAJ:Number,MAJ:Description)
+    BUTTON('&Select'),AT(101,158,49,14),USE(?Select:2),ICON('WASELECT.ICO'),FLAT,MSG('Select the Record'),TIP('Select the Record'),LEFT,#SEQ(2),#ORIG(?Select)
+  SHEET,AT(4,4,150,172),USE(?CurrentTab),#ORIG(CurrentTab)
+    TAB('&1) by Major Description'),USE(?Tab:2)
+    END
+  END
+  BUTTON('&Close'),AT(52,180,49,14),USE(?Close),ICON('WACLOSE.ICO'),FLAT,MSG('Close Window'),TIP('Close Window'),LEFT,#SEQ(3),#ORIG(?Close)
+  BUTTON('&Help'),AT(105,180,49,14),USE(?Help),ICON('WAHELP.ICO'),FLAT,MSG('See Help Window'),TIP('See Help Window'),LEFT,STD(STD:Help),#SEQ(4),#ORIG(?Help)
+ END
+[PROCEDURE]
+NAME UpdateStudents
+CATEGORY 'Form'
+[COMMON]
+DESCRIPTION 'Form Students'
+FROM ABC Window
+[DATA]
+CurrentTab                STRING(80)
+[FILES]
+[PRIMARY]
+Students
+[INSTANCE]
+2
+[PROMPTS]
+%ButtonAction DEPEND %Control STRING TIMES 0
+
+%ButtonRunName DEPEND %Control STRING TIMES 0
+
+%ButtonRunParameters DEPEND %Control STRING TIMES 0
+
+%ButtonProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ButtonThread DEPEND %Control LONG TIMES 0
+
+%ButtonThreadStack DEPEND %Control @n7 TIMES 0
+
+%ButtonParameters DEPEND %Control STRING TIMES 0
+
+%ButtonRequest DEPEND %Control STRING TIMES 0
+
+%PreLookupKey DEPEND %Control KEY TIMES 0
+
+%PreLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PreLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%PostLookupKey DEPEND %Control KEY TIMES 0
+
+%PostLookupField DEPEND %Control COMPONENT TIMES 0
+
+%PostLookupProcedure DEPEND %Control PROCEDURE TIMES 0
+
+%ForceWindowRefresh DEPEND %Control LONG TIMES 0
+[ADDITION]
+NAME ABC RecordValidation
+[INSTANCE]
+INSTANCE 1
+PROCPROP
+[PROMPTS]
+%ValidateOnAccept LONG  (1)
+%ValidateOnNonStopSelect LONG  (1)
+%ControlsExcluded MULTI LONG  ()
+%ControlToExclude DEPEND %ControlsExcluded STRING TIMES 0
+[ADDITION]
+NAME ABC SaveButton
+[INSTANCE]
+INSTANCE 2
+PROCPROP
+[PROMPTS]
+%InsertAllowed LONG  (1)
+%InsertMessage @S40  ('Record Will Be Added')
+%ChangeAllowed LONG  (1)
+%ChangeMessage @S40  ('Record Will Be Changed')
+%DeleteAllowed LONG  (0)
+%DeleteMessage @S40  ('Record Will Be Deleted')
+%ViewMessage @S40  ('View Record')
+%MessageHeader LONG  (0)
+%ActionOnDelete STRING  ('Standard Warning')
+%PrimingFields MULTI LONG  ()
+%PrimedField DEPEND %PrimingFields FIELD TIMES 0
+
+%PrimedValue DEPEND %PrimingFields @S255 TIMES 0
+
+%ActionOnCancel STRING  ('Confirm cancel')
+%MessageLocation STRING  ('Title Bar')
+%MessageStatusSection @n1  (0)
+
+%HistoryKey        DEFAULT (CtrlH)
+
+%AppendToTitle LONG  ()
+%AppendToTitleID @S255  ('')
+[ADDITION]
+NAME ABC CancelButton
+[INSTANCE]
+INSTANCE 3
+[ADDITION]
+NAME ABC HelpButton
+[INSTANCE]
+INSTANCE 4
+[ADDITION]
+NAME ABC ViewFormActions
+[INSTANCE]
+INSTANCE 5
+[ADDITION]
+NAME ABC WindowResize
+[INSTANCE]
+INSTANCE 6
+[PROMPTS]
+%UseAppStrategy    DEFAULT (1)
+%AppStrategy       DEFAULT ('Surface')
+%RestrictMinSize   DEFAULT (1)
+%WindowMinWidth    DEFAULT (0)
+%WindowMaxWidth    DEFAULT (0)
+[WINDOW]
+QuickWindow WINDOW('Form Students'),AT(,,163,182),RESIZE,IMM,GRAY,MDI,HLP('UpdateStudents'),FONT('Microsoft Sans Serif',8,,400,1),CENTER,SYSTEM
+  SHEET,AT(4,4,155,156),USE(?CurrentTab),#ORIG(CurrentTab)
+    TAB('&1) General'),USE(?Tab:1)
+         PROMPT('&Number:'),USE(?STU:Number:Prompt),TRN,AT(8,20),#ORIG(?STU:Number:Prompt),#LINK(STU:Number)
+         ENTRY(@P###-##-####P),USE(STU:Number),RIGHT(1),REQ,AT(61,20,52,10),#ORIG(STU:Number),#LINK(?STU:Number:Prompt)
+         PROMPT('&First Name:'),USE(?STU:FirstName:Prompt),TRN,AT(8,34),#ORIG(?STU:FirstName:Prompt),#LINK(STU:FirstName)
+         ENTRY(@S20),USE(STU:FirstName),AT(61,34,84,10),#ORIG(STU:FirstName),#LINK(?STU:FirstName:Prompt)
+         PROMPT('&Last Name:'),USE(?STU:LastName:Prompt),TRN,AT(8,48),#ORIG(?STU:LastName:Prompt),#LINK(STU:LastName)
+         ENTRY(@S20),USE(STU:LastName),AT(61,48,84,10),#ORIG(STU:LastName),#LINK(?STU:LastName:Prompt)
+         PROMPT('&Address:'),USE(?STU:Address:Prompt),TRN,AT(8,62),#ORIG(?STU:Address:Prompt),#LINK(STU:Address)
+         ENTRY(@S20),USE(STU:Address),AT(61,62,84,10),#ORIG(STU:Address),#LINK(?STU:Address:Prompt)
+         PROMPT('Address 2:'),USE(?STU:Address2:Prompt),TRN,AT(8,76),#ORIG(?STU:Address2:Prompt),#LINK(STU:Address2)
+         ENTRY(@s20),USE(STU:Address2),AT(61,76,84,10),#ORIG(STU:Address2),#LINK(?STU:Address2:Prompt)
+         PROMPT('&City:'),USE(?STU:City:Prompt),TRN,AT(8,90),#ORIG(?STU:City:Prompt),#LINK(STU:City)
+         ENTRY(@S20),USE(STU:City),AT(61,90,84,10),#ORIG(STU:City),#LINK(?STU:City:Prompt)
+         PROMPT('&State:'),USE(?STU:State:Prompt),TRN,AT(8,104),#ORIG(?STU:State:Prompt),#LINK(STU:State)
+         ENTRY(@S2),USE(STU:State),AT(61,104,40,10),#ORIG(STU:State),#LINK(?STU:State:Prompt)
+         PROMPT('&Zip:'),USE(?STU:Zip:Prompt),TRN,AT(8,118),#ORIG(?STU:Zip:Prompt),#LINK(STU:Zip)
+         ENTRY(@n05),USE(STU:Zip),AT(61,118,40,10),#ORIG(STU:Zip),#LINK(?STU:Zip:Prompt)
+         PROMPT('&Telephone:'),USE(?STU:Telephone:Prompt),TRN,AT(8,132),#ORIG(?STU:Telephone:Prompt),#LINK(STU:Telephone)
+         ENTRY(@s12),USE(STU:Telephone),AT(61,132,52,10),#ORIG(STU:Telephone),#LINK(?STU:Telephone:Prompt)
+         PROMPT('Grad Year:'),USE(?STU:GradYear:Prompt),TRN,AT(8,146),#ORIG(?STU:GradYear:Prompt),#LINK(STU:GradYear)
+         ENTRY(@n4),USE(STU:GradYear),AT(61,146,40,10),#ORIG(STU:GradYear),#LINK(?STU:GradYear:Prompt)
+    END
+  END
+  BUTTON('&OK'),AT(4,164,49,14),USE(?OK),ICON('WAOK.ICO'),FLAT,MSG('Accept data and close the window'),TIP('Accept data and close the window'),LEFT,DEFAULT,#SEQ(2),#ORIG(?OK)
+  BUTTON('&Cancel'),AT(57,164,49,14),USE(?Cancel),ICON('WACANCEL.ICO'),FLAT,MSG('Cancel operation'),TIP('Cancel operation'),LEFT,#SEQ(3),#ORIG(?Cancel)
+  BUTTON('&Help'),AT(110,164,49,14),USE(?Help),ICON('WAHELP.ICO'),FLAT,MSG('See Help Window'),TIP('See Help Window'),LEFT,STD(STD:Help),#SEQ(4),#ORIG(?Help)
+ END
