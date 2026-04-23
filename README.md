@@ -7,15 +7,15 @@
 #### The Template
 1. Copy the gwbToDoWindow.tpl to your Clarion accessories\template\win\ folder
 2. Register the template in Clarion
-3. Optionally edit the template window
-    The template has a default window which can be edited using Ctrl-D over the window definition line.
-    This will open the window designer in Clarion
-    The default window has...
-    a title string using the gwbProcedureName variable which is automatically set to the procedure name
-    a prompt control which receives the default message displayed to the user
-    an image control that could contain your business logo
-    an OK button to close the window with the enter key
-4. Optionally edit the default message to be displayed on the window - gebMessage string variable
+3. Optionally edit the template window.
+4.     The template has a default window which can be edited using Ctrl-D over the window definition line.
+5.     This will open the window designer in Clarion
+6.     The default window has...
+7.     a title string using the gwbProcedureName variable which is automatically set to the procedure name
+8.     a prompt control which receives the default message displayed to the user
+9.     an image control that could contain your business logo
+10.     an OK button to close the window with the enter key
+11. Optionally edit the default message to be displayed on the window - gebMessage string variable
 
 #### Using the Template
 1. The template is intended as a replacement for the standard Clarion TODO message, which can't be configure
